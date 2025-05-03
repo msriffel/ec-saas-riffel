@@ -19,6 +19,7 @@ app.get("/api", (req, res) => {
   res.json({ success: true, serverTime: new Date() });
 });
 
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`Servidor rodando na porta ${PORT}`);

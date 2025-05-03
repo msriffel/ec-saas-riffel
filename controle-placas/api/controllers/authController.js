@@ -3,27 +3,35 @@ const pool = require('../db');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
-const registrarUsuario = async (req, res) => {
-  const { nome, email, senha } = req.body;
-
-  try {
-    const usuarioExistente = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
-
-    if (usuarioExistente.rows.length > 0) {
-      return res.status(400).json({ message: 'Email já cadastrado.' });
+exports.registrarUsuario = async (req, res) => {
+    const { nome, email, senha, telefone, endereco } = req.body;  // Agora inclui telefone e endereco
+  
+    try {
+      // Verifica se o email já está cadastrado
+      const usuarioExistente = await pool.query('SELECT * FROM usuarios WHERE email = $1', [email]);
+  
+      if (usuarioExistente.rows.length > 0) {
+        return res.status(400).json({ message: 'Email já cadastrado.' });
+      }
+  
+      // Faz o hash da senha
+      const senhaHash = await bcrypt.hash(senha, 10);
+  
+      // Insere o novo usuário com os novos campos
+      await pool.query(
+        'INSERT INTO usuarios (nome, email, senha, telefone, endereco) VALUES ($1, $2, $3, $4, $5)', 
+        [nome, email, senhaHash, telefone, endereco]
+      );
+  
+      // Responde ao cliente com sucesso
+      res.status(201).json({ message: 'Usuário registrado com sucesso!' });
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: 'Erro ao registrar usuário.' });
     }
+  };
 
-    const senhaHash = await bcrypt.hash(senha, 10);
-    await pool.query('INSERT INTO usuarios (nome, email, senha) VALUES ($1, $2, $3)', [nome, email, senhaHash]);
-
-    res.status(201).json({ message: 'Usuário registrado com sucesso!' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Erro ao registrar usuário.' });
-  }
-};
-
-const loginUsuario = async (req, res) => {
+exports.loginUsuario = async (req, res) => {
   const { email, senha } = req.body;
 
   try {
@@ -57,7 +65,18 @@ const loginUsuario = async (req, res) => {
   }
 };
 
-module.exports = {
-  registrarUsuario,
-  loginUsuario
+exports.listarUsuarios = async (req, res) => {
+  try {
+    // Consulta para listar todos os usuários
+    const resultado = await pool.query('SELECT id, nome, email, telefone, endereco FROM usuarios');
+    
+    if (resultado.rows.length === 0) {
+      return res.status(404).json({ message: 'Nenhum usuário encontrado.' });
+    }
+
+    res.json(resultado.rows);  // Retorna todos os usuários encontrados
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: 'Erro ao listar usuários.' });
+  }
 };

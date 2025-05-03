@@ -9,4 +9,7 @@ router.post('/registrar', authController.registrarUsuario);
 // Rota para fazer login
 router.post('/login', authController.loginUsuario);
 
+// Rota para listar todos os usuários
+router.get('/usuarios', authController.listarUsuarios);
+
 module.exports = router;
