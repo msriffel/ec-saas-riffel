@@ -1,8 +1,7 @@
-// db.js
-
-const { Pool } = require('pg');
+const { Pool } = require('pg');  // Importando o Pool
 const fs = require('fs');
-require('dotenv').config();
+const path = require('path');
+
 
 const pool = new Pool({
   host: process.env.DB_HOST,
@@ -10,12 +9,14 @@ const pool = new Pool({
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
   port: 5432,
-  ssl: process.env.DB_SSL === 'true' ? {
-    rejectUnauthorized: false,
-    cert: fs.readFileSync(process.env.DB_CLIENT_CERT_PATH).toString(),
-    key: fs.readFileSync(process.env.DB_CLIENT_KEY_PATH).toString(),
-    ca: fs.readFileSync(process.env.DB_SERVER_CA_PATH).toString(),
-  } : false
+  ssl: process.env.DB_SSL === 'true'
+    ? {
+        rejectUnauthorized: false,
+        cert: fs.readFileSync(path.join(__dirname, process.env.DB_CLIENT_CERT_PATH)),
+        key: fs.readFileSync(path.join(__dirname, process.env.DB_CLIENT_KEY_PATH)),
+        ca: fs.readFileSync(path.join(__dirname, process.env.DB_SERVER_CA_PATH)),
+      }
+    : false
 });
 
 module.exports = pool;

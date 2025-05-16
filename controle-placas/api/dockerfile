@@ -1,0 +1,21 @@
+# Dockerfile para o backend em Node.js
+# Usar a imagem base do Node.js
+FROM node:18
+
+# Usar a imagem base do Node.js
+WORKDIR /app
+
+# Definir o diretório de trabalho dentro do contêiner
+COPY package*.json ./
+
+# Copiar os arquivos de configuração do Node.js para o diretório de trabalho
+RUN npm install
+
+# Instalar as dependências do Node.js
+COPY . .
+
+EXPOSE 3000
+# Expor a porta 3000 para acesso ao backend
+
+# Iniciar o servidor Node.js
+CMD ["node", "server.js"]

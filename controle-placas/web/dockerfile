@@ -1,0 +1,5 @@
+# Usar a imagem base do Nginx
+FROM nginx:alpine
+
+# Copiar os arquivos do frontend (HTML, CSS, JS) para o diretório do Nginx
+COPY . /usr/share/nginx/html
